@@ -51,6 +51,8 @@ Senior Data Engineer with 7+ years building production data pipelines, lakehouse
 
 This is my base platform architecture, the standard blueprint every project starts from, covering all sources and both consumption paths, unless a pipeline needs a specific change.
 
+**Interactive version:** [Explore the architectures live](https://harishsingi.github.io/harishsingi/architecture-explorer/) — click any service to see what it does, and send a record through the pipeline.
+
 ![Base platform architecture](docs/architecture/base-platform-architecture.svg)
 
 ```mermaid
