@@ -51,6 +51,8 @@ Senior Data Engineer with 7+ years building production data pipelines, lakehouse
 
 This is my base platform architecture, the standard blueprint every project starts from, covering all sources and both consumption paths, unless a pipeline needs a specific change.
 
+![Base platform architecture](docs/architecture/base-platform-architecture.svg)
+
 ```mermaid
 flowchart LR
     A[Sources<br/>APIs, files, events, CRM] --> B[Ingestion<br/>Glue / Kafka / Kinesis]
