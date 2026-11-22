@@ -56,6 +56,27 @@ This is my base platform architecture, the standard blueprint every project star
 ![Base platform pipeline — Before / After](docs/architecture/generic-pipeline-elaborated.svg)
 
 Hover any component to see what it is and why it is needed.
+<details>
+<summary><b>Gate + semantic layer — click to expand the 4 steps</b></summary>
+
+Collapsed, this is just: Sources -> Gate: schema + DQ -> Glue source layer -> PySpark transforms -> Prepared tables
+
+1. Sources land — APIs, SQL databases, MySQL, files, MFT and SFTP, single or multi-source per use case.
+2. The gate runs schema and data quality checks; failures are quarantined, nothing bad lands.
+3. Glue loads data as-arrived with full fidelity, replayable, nothing lost.
+4. PySpark transformations join, clean and dedupe, applying business rules once, here.
+
+Promoted next into the Iceberg semantic layer with row, table and field filter packages, feeding dashboards and SQL/REST access.
+</details>
+
+### Earlier issues, risk, and impact after
+
+| Aspect | Detail |
+|---|---|
+| Earlier issues | One source pulled by hand, so the pipeline only worked for one use case; no schema or quality gate, so bad data landed and broke downstream tables; transforms run by hand in no fixed order, so results were hard to repeat; tables scattered with no model, so teams built their own conflicting versions; dashboards queried raw data directly; no monitoring, so failures were found by users. |
+| Risk | One bad file could break every downstream table; one upstream change could break every dashboard; failures were found by users, after decisions were already made on bad data. |
+| Impact after | Every source passes the same gate, so bad data is quarantined before it lands; the medallion layers give one version of the truth; the same gold layer feeds both BI dashboards and ML features, so the two never drift apart; Airflow orchestration, daily DQ checks and CloudWatch monitoring catch failures first. |
+
 
 ![Pipeline at a glance](docs/architecture/pipeline-clipart.svg)
 ![Streaming at a glance](docs/architecture/streaming-clipart.svg)
