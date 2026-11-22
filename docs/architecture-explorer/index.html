@@ -90,6 +90,36 @@ h1 em{font-style:normal;color:var(--accent);text-decoration:underline;text-decor
 .baChip b{color:var(--accent)}
 .baPanel[hidden]{display:none}
 @media(max-width:700px){.baHeads{display:none}.baRow{grid-template-columns:1fr}.baArrow{transform:rotate(90deg)}.baDim{margin-top:6px}}
+/* Before / After flows */
+.baFlows{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0 10px}
+@media(max-width:860px){.baFlows{grid-template-columns:1fr}}
+.baFlowCard{background:var(--stage);border-radius:18px;overflow:hidden;border:1px solid rgba(255,255,255,.08)}
+.baFlowHead{padding:12px 14px;color:#fff}
+.baFlowHead.before{background:linear-gradient(90deg,#451a03,#78350f)}
+.baFlowHead.after{background:linear-gradient(90deg,#042f2e,#0f766e)}
+.baFlowHead strong{display:block;font-size:14px;letter-spacing:.02em}
+.baFlowHead span{display:block;font-size:12px;color:#d6e4f0;line-height:1.45;margin-top:3px}
+.baFlowHead.before span{color:#fde68a}
+.baFlowDiagram{position:relative;height:330px;background:radial-gradient(circle at 20% 20%,rgba(45,212,191,.10),transparent 42%),linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);background-size:auto,26px 26px,26px 26px;overflow:hidden}
+.baFlowDiagram svg{position:absolute;inset:0;width:100%;height:100%}
+.baFlowDiagram .edge{stroke-width:2.4}
+.baFlowDiagram .edge.beforeEdge{stroke:#fbbf24;opacity:.75}
+.baFlowDiagram .edge.afterEdge{stroke:#5eead4;opacity:.8}
+.baFlowDiagram .node{width:80px;padding:4px 2px}
+.baFlowDiagram .iconBox{width:50px;height:50px;border-radius:12px}
+.baFlowDiagram .iconBox svg,.baFlowDiagram .iconBox img{width:50px!important;height:50px!important}
+.baFlowDiagram .nodeName{font-size:11px}
+.baFlowDiagram .nodeRole{font-size:9.5px;line-height:1.3}
+.baBadge{position:absolute;top:10px;right:10px;z-index:3;font-family:"JetBrains Mono",monospace;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:6px 8px;border-radius:999px}
+.baBadge.before{background:#f59e0b;color:#111827}
+.baBadge.after{background:#2dd4bf;color:#042f2e}
+.baSteps{padding:12px 14px 14px;background:rgba(255,255,255,.04);border-top:1px solid rgba(255,255,255,.1);color:#e2e8f0}
+.baSteps ol{margin:6px 0 0;padding-left:18px}
+.baSteps li{font-size:12.5px;line-height:1.55;color:#cbd5e1;margin:4px 0}
+.baSteps li b{color:#fff}
+.baFlowDetail{border:1px solid var(--line);background:var(--bg);border-radius:14px;padding:12px 14px;font-size:13.5px;line-height:1.6;color:var(--muted)}
+.baFlowDetail b{color:var(--ink)}
+.baVs{display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--muted);font-size:12px;letter-spacing:.12em;text-transform:uppercase;margin:2px 0}
 .note{font-size:12px;color:var(--muted);margin-top:10px;line-height:1.6}
 @media(prefers-reduced-motion:reduce){.edge{animation:none}.iconBox{transition:none}}
 </style>
@@ -123,8 +153,23 @@ h1 em{font-style:normal;color:var(--accent);text-decoration:underline;text-decor
 
 <section class="card" style="margin-top:14px"><h3>Service library — tap one to see where it shows up</h3><p>Every AWS service uses the exact official AWS Architecture Icon — the real PNG from AWS's official icon pack (via awslabs/aws-icons-for-plantuml), not a redraw: the purple Glue funnel, green S3 bucket, orange Lambda, plus Athena, CloudWatch, Kinesis, EMR, Step Functions, SageMaker, QuickSight and the Glue Data Catalog. Non-AWS tools — Salesforce, Kafka, Iceberg, Airflow and the rest — keep their own figures, with the service name under every icon.</p><div class="lib" id="lib"></div><p class="note" id="libNote">Select a service above to highlight it across the diagrams.</p></section>
 
-<section class="card" style="margin-top:14px"><h3>Before / After — what the watermark pattern fixed</h3><p>Two views of the same change: the CRM ingestion pipeline where it landed first, and the base platform blueprint it came from. Qualitative comparison — the direction of travel, not measured figures.</p>
-<div class="baTabs" role="tablist" aria-label="Before and after views"><button class="baTab" role="tab" data-ba="crm" aria-selected="true">CRM ingestion</button><button class="baTab" role="tab" data-ba="base" aria-selected="false">Base platform</button></div>
+<section class="card" style="margin-top:14px"><h3>Before / After — the flow, not just the table</h3><p>Now the flow itself has a Before and an After. Same source, same destination — watch how the path changes: calendar day-1 loads and full appends on the left, watermark catch-up and idempotent upserts on the right. Click any icon in either flow to inspect it. Qualitative comparison — the direction of travel, not measured figures.</p>
+<div class="baTabs" role="tablist" aria-label="Before and after views"><button class="baTab" role="tab" data-ba="crm" aria-selected="true">CRM ingestion flow</button><button class="baTab" role="tab" data-ba="base" aria-selected="false">Base platform flow</button></div>
+
+<div class="baFlows" aria-label="Before and after flow diagrams">
+  <article class="baFlowCard">
+    <div class="baFlowHead before"><strong id="baBeforeTitle">Before flow</strong><span id="baBeforeSub"></span></div>
+    <div class="baFlowDiagram" id="baFlowBefore"><span class="baBadge before">Before</span><svg id="baEdgesBefore" viewBox="0 0 1000 400" preserveAspectRatio="none" aria-hidden="true"></svg><div id="baNodesBefore"></div></div>
+    <div class="baSteps"><strong style="font-size:12px;letter-spacing:.06em;color:#fff">HOW A RECORD MOVED — BEFORE</strong><ol id="baStepsBefore"></ol></div>
+  </article>
+  <article class="baFlowCard">
+    <div class="baFlowHead after"><strong id="baAfterTitle">After flow</strong><span id="baAfterSub"></span></div>
+    <div class="baFlowDiagram" id="baFlowAfter"><span class="baBadge after">After</span><svg id="baEdgesAfter" viewBox="0 0 1000 400" preserveAspectRatio="none" aria-hidden="true"></svg><div id="baNodesAfter"></div></div>
+    <div class="baSteps"><strong style="font-size:12px;letter-spacing:.06em;color:#fff">HOW A RECORD MOVES — AFTER</strong><ol id="baStepsAfter"></ol></div>
+  </article>
+</div>
+<p class="baFlowDetail" id="baFlowDetail"><b>Tap an icon in either flow.</b> Before nodes show where records were missed or duplicated; After nodes show where the watermark, upsert and Iceberg steps fix it — using the same service inspector language as the main diagram.</p>
+<p style="color:var(--muted);font-size:14px;line-height:1.6;margin:14px 0 4px"><b style="color:var(--ink)">Same comparison, as a table:</b> processing, efficiency and cost side by side.</p>
 
 <div class="baPanel" id="ba-crm">
 <div class="baHeads"><div></div><div class="baHead before">Before — calendar loads</div><div></div><div class="baHead after">After — watermark loads</div></div>
@@ -264,8 +309,52 @@ document.getElementById('runBtn').onclick=async()=>{
 // Library
 const lib=document.getElementById('lib'); lib.innerHTML=Object.keys(SERVICES).map(k=>`<button class="libItem" data-k="${k}"><span class="iconBox">${iconFor(k)}</span><strong>${SERVICES[k].name}</strong><span>${SERVICES[k].tags.join(' · ')}</span></button>`).join('')
 lib.querySelectorAll('.libItem').forEach(b=>b.onclick=()=>{const k=b.dataset.k;const uses=ARCH.map((a,i)=>a.nodes.some(n=>n.svc===k)?a.title:null).filter(Boolean);document.getElementById('libNote').textContent= uses.length? `${SERVICES[k].name} appears in: ${uses.join(', ')}. ${SERVICES[k].desc}` : SERVICES[k].name+': '+SERVICES[k].desc; const idx=ARCH[current].nodes.findIndex(n=>n.svc===k); if(idx>=0) inspect(current,idx); window.scrollTo({top:0,behavior:'smooth'})})
+// ---------- Before / After FLOWS ----------
+const BA_FLOWS={
+crm:{
+ before:{title:"Before — CRM calendar flow",sub:"Day-1 delta only. If a day was missed, that slice was gone until someone reloaded everything.",
+  nodes:[{svc:"salesforce",x:12,y:48,role:"SOURCE"},{svc:"glue",x:34,y:48,role:"DAY-1 DELTA JOB"},{svc:"s3",x:56,y:48,role:"FULL APPEND DAILY"},{svc:"quicksight",x:82,y:48,role:"VIEW · GAPS HIDDEN"},{svc:"cloudwatch",x:56,y:84,role:"NO GAP ALERT"}],
+  edges:[[0,1],[1,2],[2,3],[2,4]],
+  steps:["<b>Salesforce changes</b> happen all day, but the job only asks for yesterday.","<b>Calendar window:</b> anything outside day-1 is never fetched.","<b>Full append:</b> the whole extract is appended again — duplicates creep in.","<b>Missed day = silent gap.</b> The fix was a full reload of everything."]},
+ after:{title:"After — CRM watermark flow",sub:"Watermark catch-up, SRC → PRE → SEM. Re-runs are safe and outages heal on the next run.",
+  nodes:[{svc:"salesforce",x:10,y:48,role:"SOURCE"},{svc:"glue",x:28,y:48,role:"WATERMARK LOAD"},{svc:"s3",x:28,y:84,role:"RAW JSON"},{svc:"s3",x:50,y:48,role:"SRC · PARQUET"},{svc:"spark",x:70,y:48,role:"PRE · UPSERT + DEDUPE"},{svc:"iceberg",x:89,y:48,role:"SEM · DELETES APPLIED"},{svc:"cloudwatch",x:70,y:84,role:"ALERTS + CHECKS"}],
+  edges:[[0,1],[1,2],[1,3],[3,4],[4,5],[4,6]],
+  steps:["<b>Read the watermark:</b> max timestamp already in the target.","<b>Pull only what changed</b> since that point — 1 hour or 5 days, it catches up.","<b>PRE upserts + dedupes</b> by Id, latest timestamp wins. Re-running is safe.","<b>SEM applies deletes</b> and promotes Iceberg → Iceberg, fast and consistent."]}
+},
+base:{
+ before:{title:"Before — Base platform calendar flow",sub:"Every source on its own calendar schedule. One failed day broke trust in the whole lake.",
+  nodes:[{svc:"database",x:12,y:32,role:"SYSTEMS"},{svc:"files",x:12,y:70,role:"FILES & FEEDS"},{svc:"glue",x:36,y:50,role:"CALENDAR LOADS"},{svc:"s3",x:60,y:50,role:"FULL LOADS · LAKE"},{svc:"quicksight",x:85,y:50,role:"BI · STALE / GAPPED"}],
+  edges:[[0,2],[1,2],[2,3],[3,4]],
+  steps:["<b>Each source</b> fetched “yesterday” on a fixed schedule.","<b>Assumption:</b> yesterday's job ran. If it didn't, no one was told.","<b>Full loads appended</b> into the lake — compute spent on unchanged records.","<b>Recovery</b> meant reloading the full dataset before BI could be trusted."]},
+ after:{title:"After — Base platform watermark flow",sub:"The blueprint default: land raw, validate, model in layers, serve from one semantic layer.",
+  nodes:[{svc:"database",x:10,y:50,role:"SYSTEMS"},{svc:"lambda",x:26,y:50,role:"INGEST GATE"},{svc:"s3",x:43,y:50,role:"BRONZE · RAW"},{svc:"glue",x:59,y:50,role:"SILVER · CLEAN"},{svc:"iceberg",x:75,y:50,role:"GOLD · ICEBERG"},{svc:"athena",x:89,y:50,role:"SEMANTIC"}],
+  edges:[[0,1],[1,2],[2,3],[3,4],[4,5]],
+  steps:["<b>Ingest gate</b> lands everything raw first — nothing is lost at the door.","<b>Watermark loads</b> resume from the last timestamp for every source.","<b>Bronze → Silver → Gold</b> on Iceberg: idempotent, snapshot-safe layers.","<b>One semantic layer</b> serves BI and ML — same definitions everywhere."]}
+}
+};
+function renderBAFlow(side,flow){
+ const isBefore=side==='before';
+ document.getElementById(isBefore?'baBeforeTitle':'baAfterTitle').textContent=flow.title;
+ document.getElementById(isBefore?'baBeforeSub':'baAfterSub').textContent=flow.sub;
+ document.getElementById(isBefore?'baStepsBefore':'baStepsAfter').innerHTML=flow.steps.map(s=>`<li>${s}</li>`).join('');
+ const nodesEl=document.getElementById(isBefore?'baNodesBefore':'baNodesAfter');
+ const edgesEl=document.getElementById(isBefore?'baEdgesBefore':'baEdgesAfter');
+ nodesEl.innerHTML=flow.nodes.map((n,i)=>{const s=SERVICES[n.svc];return `<button class="node" data-side="${side}" data-i="${i}" style="left:${n.x}%;top:${n.y}%" aria-label="${isBefore?'Before: ': 'After: '}${s.name}"><span class="iconBox">${iconFor(n.svc)}</span><span class="nodeName">${s.name}</span><span class="nodeRole" style="display:block">${n.role}</span></button>`}).join('');
+ const NS='http://www.w3.org/2000/svg'; edgesEl.innerHTML='';
+ flow.edges.forEach(([f,t])=>{const A=flow.nodes[f],B=flow.nodes[t];const x1=A.x*10,y1=A.y*4,x2=B.x*10,y2=B.y*4;const mx=(x1+x2)/2;const p=document.createElementNS(NS,'path');p.setAttribute('d',`M ${x1} ${y1} C ${mx} ${y1}, ${mx} ${y2}, ${x2} ${y2}`);p.setAttribute('class','edge '+(isBefore?'beforeEdge':'afterEdge'));edgesEl.appendChild(p);const c=document.createElementNS(NS,'circle');c.setAttribute('r','5');c.setAttribute('fill',isBefore?'#f59e0b':'#2dd4bf');c.setAttribute('stroke','white');c.setAttribute('stroke-width','2');const am=document.createElementNS(NS,'animateMotion');am.setAttribute('dur',(2.8+Math.random()*1.6)+'s');am.setAttribute('repeatCount','indefinite');am.setAttribute('path',p.getAttribute('d'));c.appendChild(am);edgesEl.appendChild(c)});
+ nodesEl.querySelectorAll('.node').forEach(el=>el.onclick=()=>{
+   const f=BA_FLOWS[currentBA][side]; const n=f.nodes[+el.dataset.i]; const s=SERVICES[n.svc];
+   nodesEl.querySelectorAll('.node').forEach(x=>x.classList.remove('active')); el.classList.add('active');
+   document.getElementById('baFlowDetail').innerHTML=`<b>${isBefore?'Before':'After'} — ${s.name} (${n.role}):</b> ${s.desc} <b>In:</b> ${s.inn}. <b>Out:</b> ${s.out}. ${s.why}`;
+   // also sync main inspector for consistency
+   const mainIdx=ARCH[current].nodes.findIndex(x=>x.svc===n.svc); if(mainIdx>=0) inspect(current,mainIdx);
+ });
+}
+let currentBA='crm';
+function renderBA(view){currentBA=view;renderBAFlow('before',BA_FLOWS[view].before);renderBAFlow('after',BA_FLOWS[view].after)}
 // Before / After tabs
-document.querySelectorAll('.baTab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.baTab').forEach(x=>x.setAttribute('aria-selected',x===b?'true':'false'));document.querySelectorAll('.baPanel').forEach(p=>p.hidden=p.id!=='ba-'+b.dataset.ba)})
+document.querySelectorAll('.baTab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.baTab').forEach(x=>x.setAttribute('aria-selected',x===b?'true':'false'));document.querySelectorAll('.baPanel').forEach(p=>p.hidden=p.id!=='ba-'+b.dataset.ba);renderBA(b.dataset.ba);document.getElementById('baFlowDetail').innerHTML='<b>Tap an icon in either flow.</b> Before nodes show where records were missed or duplicated; After nodes show where the watermark, upsert and Iceberg steps fix it.'})
+renderBA('crm')
 render()
 </script>
 </body>
