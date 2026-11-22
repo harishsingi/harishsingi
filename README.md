@@ -124,6 +124,7 @@ flowchart LR
 - **People analytics:** lifecycle data into governed layers, row and column level access controls, attrition and headcount reporting.
 - **Incentive analytics:** heavy Snowflake transformations, tiering by historic patterns, dashboard-ready gold table.
 - **Salesforce CRM ingestion:** Glue downloaders, SRC overwrites that day, PRE upserts with dedupe on record Id, SEM applies deletes via is_deleted, and a target-timestamp catch-up that self-heals after outages.
+- **Data quality validation:** rules as config, schema, null, duplicate, range and freshness checks before data lands in gold, failed records quarantined, pass/fail report and alerts.
 
 </details>
 
@@ -153,6 +154,7 @@ Click a project to explore it. Every repo runs locally with synthetic data, no s
 | [people-analytics-warehouse](https://github.com/harishsingi/people-analytics-warehouse) | `python -m src.build` | Governed HR warehouse: lifecycle data, SCD 1/2, attrition and headcount reporting, access controls |
 | [incentive-analytics-snowflake](https://github.com/harishsingi/incentive-analytics-snowflake) | `python -m src.build_gold` | Snowflake-style transformations for incentive dashboards, invoice and cost reporting |
 | [salesforce-crm-ingestion](https://github.com/harishsingi/salesforce-crm-ingestion) | `python -m src.src_to_pre` | Salesforce CRM ingestion: SRC/PRE/SEM, dedupe on record Id, deletes via is_deleted, self-healing incremental loads |
+| [data-quality-validation-framework](https://github.com/harishsingi/data-quality-validation-framework) | `python -m src.run_validation` | Data quality validation: rules as config, schema/null/duplicate/range/freshness checks, quarantine, pass/fail reporting |
 
 > These repos are clean-room portfolio recreations of production work. All data is synthetic, and no proprietary code, data, schema names, or internal system details from any employer are included.
 
