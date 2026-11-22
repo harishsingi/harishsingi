@@ -143,7 +143,7 @@ flowchart LR
 
 ## Featured projects
 
-Click a project to explore it. Every repo runs locally with synthetic data, no setup beyond Python.
+The base architecture above is the main one. Each project below is one application of it — click a project to explore that project's own architecture, including its Before / After and its expandable sub-levels. Every repo runs locally with synthetic data, no setup beyond Python.
 
 | Project | Try it | What it demonstrates |
 |---|---|---|
