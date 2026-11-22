@@ -47,6 +47,50 @@ Senior Data Engineer with 7+ years building production data pipelines, lakehouse
 
 [![My Skills](https://skillicons.dev/icons?i=python,aws,apachekafka,terraform,docker,git,githubactions,snowflake,postgres,mysql,linux&theme=light)](https://skillicons.dev)
 
+## 🧭 How a pipeline I build looks
+
+```mermaid
+flowchart LR
+    A[Sources<br/>APIs, files, events] --> B[Ingestion<br/>Kafka / Kinesis / Glue]
+    B --> C[Bronze<br/>Raw, immutable]
+    C --> D[Silver<br/>Cleaned, validated, DQ checks]
+    D --> E[Gold<br/>Dimensional, SCD 1/2]
+    E --> F[BI dashboards<br/>QuickSight / Power BI]
+    E --> G[ML features<br/>Forecasting / risk scoring]
+    D -.-> H[Alerts<br/>CloudWatch, on-call]
+```
+
+## 📈 Activity
+
+![Harish's activity graph](https://github-readme-activity-graph.vercel.app/graph?username=harishsingi&theme=github-compact&hide_border=true)
+
+<details>
+<summary><b>🔍 Project deep dives, click to open</b></summary>
+
+<br>
+
+- **AWS pipeline starter kit:** Glue job, Lambda validator, Athena queries, Terraform for the whole stack, data quality checks before anything lands in gold.
+- **Iceberg lakehouse:** Hive tables migrated to Iceberg, snapshot time travel to roll back a bad load, Airflow orchestrating the migration in stages.
+- **Demand forecasting:** lag and rolling features, seasonal patterns, backtest on the last 90 days with no leakage, plain-English driver summary per product.
+- **Credit fraud risk:** feature store style inputs, a transparent scoring model, and a score entry point you can run on a single record.
+- **People analytics:** lifecycle data into governed layers, row and column level access controls, attrition and headcount reporting.
+- **Incentive analytics:** heavy Snowflake transformations, tiering by historic patterns, dashboard-ready gold table.
+
+</details>
+
+<details>
+<summary><b>💬 Ask me about</b></summary>
+
+<br>
+
+- Lakehouse migrations, Hive to Iceberg, and when not to migrate
+- Data quality that actually catches bad loads before dashboards do
+- Dimensional modelling, SCD Type 1/2, and gold layer design
+- PySpark performance tuning and Airflow orchestration
+- Demand forecasting and fraud scoring on real, messy data
+
+</details>
+
 ## Featured projects
 
 Click a project to explore it. Every repo runs locally with synthetic data, no setup beyond Python.
