@@ -1,5 +1,7 @@
 # Harish Reddy Singi Reddy
 
+[![Typing SVG](https://readme-typing-svg.demolab.com?font=Fira+Code&pause=1000&color=2F81F7&center=true&vCenter=true&width=500&lines=Senior+Data+Engineer;Python+%E2%80%A2+SQL+%E2%80%A2+PySpark+%E2%80%A2+AWS;Lakehouses+%E2%80%A2+ETL+%E2%80%A2+ML+on+data)](https://git.io/typing-svg)
+
 [![Senior Data Engineer](https://img.shields.io/badge/Senior%20Data%20Engineer-7%2B%20yrs-blue?style=for-the-badge)](https://github.com/harishsingi)
 [![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://github.com/harishsingi)
 [![PySpark](https://img.shields.io/badge/PySpark-E25A1C?style=for-the-badge&logo=apachespark&logoColor=white)](https://github.com/harishsingi)
@@ -35,6 +37,15 @@ Senior Data Engineer with 7+ years building production data pipelines, lakehouse
 | Platform | Terraform, Docker, GitHub Actions CI/CD, CloudWatch, data quality frameworks |
 
 </details>
+
+## 📊 GitHub stats
+
+![Harish's GitHub stats](https://github-readme-stats.vercel.app/api?username=harishsingi&show_icons=true&theme=default&hide_border=true&count_private=true)
+![Top languages](https://github-readme-stats.vercel.app/api/top-langs/?username=harishsingi&layout=compact&theme=default&hide_border=true&count_private=true)
+
+## 🛠️ Stack at a glance
+
+[![My Skills](https://skillicons.dev/icons?i=python,aws,apachekafka,terraform,docker,git,githubactions,snowflake,postgres,mysql,linux&theme=light)](https://skillicons.dev)
 
 ## Featured projects
 
@@ -78,6 +89,4 @@ Click a project to explore it. Every repo runs locally with synthetic data, no s
 
 - Email: sharishreddy.2023@gmail.com
 - Open to relocate anywhere in the USA
-- Currently exploring: streaming ingestion, data observability, and agentic data infrastructure
-
-![Harish's GitHub stats](https://github-readme-stats.vercel.app/api?username=harishsingi&show_icons=true&theme=default&hide_border=true&count_private=true)
+- 🌱 Currently exploring: streaming ingestion, data observability, and agentic data infrastructure
