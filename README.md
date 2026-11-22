@@ -53,6 +53,10 @@ This is my base platform architecture, the standard blueprint every project star
 
 **Interactive version, on GitHub Pages:** [harishsingi.github.io/harishsingi](https://harishsingi.github.io/harishsingi/) — full explorer with Before / After flows, no external site.
 
+![Base platform pipeline — Before / After](docs/architecture/generic-pipeline-elaborated.svg)
+
+Hover any component to see what it is and why it is needed.
+
 ![Pipeline at a glance](docs/architecture/pipeline-clipart.svg)
 ![Streaming at a glance](docs/architecture/streaming-clipart.svg)
 
