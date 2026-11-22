@@ -121,6 +121,30 @@ h1 em{font-style:normal;color:var(--accent);text-decoration:underline;text-decor
 .baFlowDetail b{color:var(--ink)}
 .baVs{display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--muted);font-size:12px;letter-spacing:.12em;text-transform:uppercase;margin:2px 0}
 .note{font-size:12px;color:var(--muted);margin-top:10px;line-height:1.6}
+/* Fetch sub-level expander */
+.fetchCard{margin-top:12px;border:1px solid var(--accent);background:var(--chip);border-radius:18px;padding:16px 18px}
+.fetchCardHead{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.fetchChain{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-weight:800;font-size:14.5px}
+.fetchChain .pill{background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 12px;display:inline-flex;gap:7px;align-items:center}
+@media(prefers-color-scheme:dark){.fetchChain .pill{background:#0f2040}}
+.fetchChain .arrow{color:var(--accent);font-size:18px}
+.fetchToggle{background:var(--accent);color:#fff;border:0;border-radius:999px;padding:11px 18px;font-weight:800}
+.fetchToggle:focus-visible{outline:3px solid #fbbf24;outline-offset:2px}
+.fetchHint{font-size:13px;color:var(--muted);line-height:1.55;margin:8px 0 0}
+.fetchSteps{margin-top:14px;background:var(--surface);border:1px dashed var(--accent);border-radius:14px;padding:14px}
+.fetchSteps[hidden]{display:none}
+.fetchSteps ol{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:10px}
+@media(min-width:760px){.fetchSteps ol{grid-template-columns:1fr 1fr 1fr}}
+.fetchStep{border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--bg)}
+.fetchStep b{display:block;font-size:13.5px;line-height:1.4}
+.fetchStep p{margin:6px 0 0;font-size:13px;line-height:1.6;color:var(--muted)}
+.fetchStep .n{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;font-size:13px;font-weight:800;margin-bottom:7px}
+.riskBox{margin-top:12px;border:1px solid #f59e0b;background:#fffbeb;border-radius:14px;padding:12px 14px}
+@media(prefers-color-scheme:dark){.riskBox{background:#2a1f08;border-color:#92400e}}
+.riskBox strong{font-size:13px}
+.riskBox ul{margin:6px 0 0;padding-left:18px}
+.riskBox li{font-size:13px;line-height:1.6;color:var(--muted);margin:3px 0}
+.riskBox li b{color:var(--ink)}
 @media(prefers-reduced-motion:reduce){.edge{animation:none}.iconBox{transition:none}}
 </style>
 </head>
@@ -153,7 +177,7 @@ h1 em{font-style:normal;color:var(--accent);text-decoration:underline;text-decor
 
 <section class="card" style="margin-top:14px"><h3>Service library — tap one to see where it shows up</h3><p>Every AWS service uses the exact official AWS Architecture Icon — the real PNG from AWS's official icon pack (via awslabs/aws-icons-for-plantuml), not a redraw: the purple Glue funnel, green S3 bucket, orange Lambda, plus Athena, CloudWatch, Kinesis, EMR, Step Functions, SageMaker, QuickSight and the Glue Data Catalog. Non-AWS tools — Salesforce, Kafka, Iceberg, Airflow and the rest — keep their own figures, with the service name under every icon.</p><div class="lib" id="lib"></div><p class="note" id="libNote">Select a service above to highlight it across the diagrams.</p></section>
 
-<section class="card" style="margin-top:14px"><h3>Before / After — the flow, not just the table</h3><p>Now the flow itself has a Before and an After. Same source, same destination — watch how the path changes: calendar day-1 loads and full appends on the left, watermark catch-up and idempotent upserts on the right. Click any icon in either flow to inspect it. Qualitative comparison — the direction of travel, not measured figures.</p>
+<section class="card" style="margin-top:14px"><h3>Before / After — the flow, not just the table</h3><p>Same source, same destination — watch how the path changes. <b>Before (left):</b> a traditional Glue job connects to the API and fetches past days of data, with a high risk of missing data and a full load to recover. <b>After (right):</b> at the top level it is just Salesforce API → Glue job with custom file downloader logic — the 3 fetch steps live inside that one step, in the expandable panel below. Click any icon in either flow to inspect it.</p>
 <div class="baTabs" role="tablist" aria-label="Before and after views"><button class="baTab" role="tab" data-ba="crm" aria-selected="true">CRM ingestion flow</button><button class="baTab" role="tab" data-ba="base" aria-selected="false">Base platform flow</button></div>
 
 <div class="baFlows" aria-label="Before and after flow diagrams">
@@ -168,13 +192,48 @@ h1 em{font-style:normal;color:var(--accent);text-decoration:underline;text-decor
     <div class="baSteps"><strong style="font-size:12px;letter-spacing:.06em;color:#fff">HOW A RECORD MOVES — AFTER</strong><ol id="baStepsAfter"></ol></div>
   </article>
 </div>
+<!-- Sub-level: the 3 API-fetch steps live INSIDE the Glue downloader -->
+<div class="fetchCard" id="fetchCard">
+  <div class="fetchCardHead">
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:700">After · Data fetching from API — sub-level</div>
+      <div class="fetchChain" style="margin-top:9px">
+        <span class="pill">Salesforce API</span><span class="arrow">→</span>
+        <span class="pill">AWS Glue job — custom file downloader logic</span><span class="arrow">→</span>
+        <span class="pill">Raw JSON in S3</span>
+      </div>
+      <p class="fetchHint">At the top level this is just <b>one step</b>: a Glue job connecting to the Salesforce API with custom file downloader logic. Steps 1, 2 and 3 are not separate top-level boxes — they happen <b>inside</b> that fetch. Expand to see them.</p>
+    </div>
+    <button class="fetchToggle" id="fetchToggle" aria-expanded="false" aria-controls="fetchSteps">Show the 3 fetch steps ▾</button>
+  </div>
+
+  <div class="fetchSteps" id="fetchSteps" hidden>
+    <strong style="font-size:13px">Inside the Glue fetch — in order:</strong>
+    <ol>
+      <li class="fetchStep"><span class="n">1</span><b>Athena — MAX(timestamp) on the target</b><p>Before calling Salesforce at all, the job queries the target table in Athena for the latest timestamp already loaded. That value is the watermark — where the data actually stops, not where the calendar says it should.</p></li>
+      <li class="fetchStep"><span class="n">2</span><b>Build the query per table, from the watermark</b><p>For each Salesforce table / object, build the query from that watermark, with a small overlap window. The overlap safely re-fetches a few late or out-of-order records — the PRE upsert dedupes them later, so overlap costs nothing and closes gaps.</p></li>
+      <li class="fetchStep"><span class="n">3</span><b>Query Salesforce — only the changes since then</b><p>The custom downloader runs that query against the Salesforce API (paginated, retried, landed exactly as returned) and fetches <b>only</b> records changed since the watermark. No full load, no fixed “past days” window.</p></li>
+    </ol>
+    <p class="note" style="margin-top:12px"><b>Why this beats a typical delta:</b> a typical delta asks “what changed in the past days?” This one asks “what is the latest timestamp already in the target, and what changed since then?” The data decides, not the calendar — so if the job was down for 1 day or 10 days, the next run resumes from the watermark and self-heals, with no gaps and no full reload.</p>
+  </div>
+
+  <div class="riskBox" id="beforeRiskBox">
+    <strong>Before — why the old past-days fetch was risky</strong>
+    <ul>
+      <li><b>Job failure:</b> if the traditional Glue job failed for a day or more, the next run still only fetched its fixed past-days window — the failed window was never asked for again.</li>
+      <li><b>API consistency &amp; other reasons:</b> late-arriving updates, timestamp skew, partial or paginated API results, and records updated outside the window could all be silently skipped.</li>
+      <li><b>Recovery = full load:</b> with no watermark to resume from, the only way to be sure nothing was missed was to perform a full load of the whole object and reload downstream.</li>
+    </ul>
+  </div>
+</div>
+
 <p class="baFlowDetail" id="baFlowDetail"><b>Tap an icon in either flow.</b> Before nodes show where records were missed or duplicated; After nodes show where the watermark, upsert and Iceberg steps fix it — using the same service inspector language as the main diagram.</p>
 <p style="color:var(--muted);font-size:14px;line-height:1.6;margin:14px 0 4px"><b style="color:var(--ink)">Same comparison, as a table:</b> processing, efficiency and cost side by side.</p>
 
 <div class="baPanel" id="ba-crm">
 <div class="baHeads"><div></div><div class="baHead before">Before — calendar loads</div><div></div><div class="baHead after">After — watermark loads</div></div>
-<div class="baRow"><div class="baDim">Processing</div><div class="baCell">Calendar-driven: each run took a <b>day-1 delta</b> — only the previous calendar day's changes. Anything outside that window was simply never picked up.</div><div class="baArrow">→</div><div class="baCell after"><b>Watermark run logic:</b> each run reads the target's maximum timestamp and pulls incrementally from exactly where the last run stopped, however long ago that was.</div></div>
-<div class="baRow"><div class="baDim">Efficiency</div><div class="baCell">A <b>full load appended daily</b> on top of what was already there. A multi-day failure <b>silently missed</b> the changes in between — and the only fix was a full reload of everything.</div><div class="baArrow">→</div><div class="baCell after"><b>Idempotent upserts</b> make re-runs safe instead of duplicating data. After an outage the next run catches up by itself — <b>self-healing, no gaps, no full reloads</b> — and PRE → SEM stays fast because it moves <b>Iceberg to Iceberg</b>.</div></div>
+<div class="baRow"><div class="baDim">Processing</div><div class="baCell"><b>Traditional Glue job → API, past-days fetch:</b> the job connected straight to the Salesforce API and fetched a fixed window of past days of data. It never checked what the target already had, so anything outside that window was simply never picked up.</div><div class="baArrow">→</div><div class="baCell after"><b>One fetch, 3 sub-steps inside the Glue downloader:</b> ① Athena MAX(timestamp) gets the watermark, ② the per-table query is built from that watermark with a small overlap, ③ Salesforce is queried for only the changes since then.</div></div>
+<div class="baRow"><div class="baDim">Efficiency</div><div class="baCell"><b>High risk of missing data:</b> if the job failed, or the API returned inconsistent / partial results, or records landed late for any other reason, that data was <b>silently missed</b>. The only reliable recovery was to <b>perform a full load</b> of everything.</div><div class="baArrow">→</div><div class="baCell after"><b>Idempotent upserts</b> make re-runs safe instead of duplicating data. After an outage the next run catches up by itself from the watermark — <b>self-healing, no gaps, no full reloads</b> — and PRE → SEM stays fast because it moves <b>Iceberg to Iceberg</b>.</div></div>
 <div class="baRow"><div class="baDim">Cost</div><div class="baCell"><b>Higher, and spiky:</b> full loads and full reloads reprocess the entire dataset, so the work scales with the whole table instead of with what actually changed.</div><div class="baArrow">→</div><div class="baCell after"><b>Lower, and steady:</b> only the records changed since the watermark are processed, so the work scales with the change volume — and reload-sized recovery runs disappear.</div></div>
 <div class="baChips"><span class="baChip">Missed changes: silent <b>→ none</b></span><span class="baChip">Recovery: full reload <b>→ automatic catch-up</b></span><span class="baChip">Reprocessing: whole table <b>→ changed records only</b></span><span class="baChip">Run cost: higher &amp; spiky <b>→ lower &amp; steady</b></span></div>
 </div>
@@ -257,7 +316,7 @@ const ARCH=[
 {svc:"airflow",x:62,y:78,role:"ORCHESTRATES"},{svc:"athena",x:82,y:26,role:"SEMANTIC"},{svc:"quicksight",x:82,y:54,role:"BI"},{svc:"sagemaker",x:82,y:80,role:"ML"}],
 edges:[[0,3],[1,3],[2,3],[3,4],[4,5],[5,6],[6,8],[6,9],[6,10],[7,5]],journey:[0,3,4,5,6,9],insight:"One blueprint, many projects: swap the source, keep the gate, layers and semantic serving exactly the same."},
 {id:"crm",num:"02",title:"CRM Ingestion — Salesforce",short:"SRC → PRE → SEM, self-healing",desc:"A daily pattern that heals itself. SRC lands Parquet with a schema check, PRE upserts and dedupes, SEM applies deletes. Catch-up is driven by the target's max timestamp — not 'yesterday'.",zones:[{t:"Land",x:22,y:6,w:20},{t:"Prepare",x:46,y:6,w:20},{t:"Serve",x:70,y:6,w:24}],nodes:[
-{svc:"salesforce",x:11,y:50,role:"SOURCE"},{svc:"glue",x:32,y:50,role:"DOWNLOADER"},{svc:"s3",x:32,y:80,role:"RAW JSON"},
+{svc:"salesforce",x:11,y:50,role:"SALESFORCE API"},{svc:"glue",x:32,y:50,role:"GLUE · CUSTOM DOWNLOADER"},{svc:"s3",x:32,y:80,role:"RAW JSON"},
 {svc:"catalog",x:54,y:22,role:"SCHEMA CHECK"},{svc:"s3",x:54,y:50,role:"SRC · PARQUET"},{svc:"spark",x:72,y:50,role:"PRE · UPSERT"},{svc:"iceberg",x:88,y:50,role:"SEM · DELETES APPLIED"},{svc:"cloudwatch",x:72,y:82,role:"ALERTS"}],
 edges:[[0,1],[1,2],[1,4],[4,3],[4,5],[5,6],[5,7]],journey:[0,1,4,5,6],insight:"102 synthetic records in, 100 unique out in testing: dedupe keeps the latest timestamp per record Id, and is_deleted in SEM removes what the source deleted."},
 {id:"kafka",num:"03",title:"Kafka Streaming",short:"No batch. Events, continuously.",desc:"A completely different shape: producers publish events once, Kafka holds them durably, and stream processors and consumers each move at their own speed — with replay when they need to catch up.",zones:[{t:"Producers",x:2,y:6,w:18},{t:"Stream",x:36,y:6,w:30},{t:"Consumers",x:72,y:6,w:24}],nodes:[
@@ -312,14 +371,14 @@ lib.querySelectorAll('.libItem').forEach(b=>b.onclick=()=>{const k=b.dataset.k;c
 // ---------- Before / After FLOWS ----------
 const BA_FLOWS={
 crm:{
- before:{title:"Before — CRM calendar flow",sub:"Day-1 delta only. If a day was missed, that slice was gone until someone reloaded everything.",
-  nodes:[{svc:"salesforce",x:12,y:48,role:"SOURCE"},{svc:"glue",x:34,y:48,role:"DAY-1 DELTA JOB"},{svc:"s3",x:56,y:48,role:"FULL APPEND DAILY"},{svc:"quicksight",x:82,y:48,role:"VIEW · GAPS HIDDEN"},{svc:"cloudwatch",x:56,y:84,role:"NO GAP ALERT"}],
+ before:{title:"Before — Traditional Glue job, past-days fetch",sub:"One Glue job connects straight to the Salesforce API and fetches the past days of data on a calendar window. No watermark, no resume point.",
+  nodes:[{svc:"salesforce",x:12,y:48,role:"SALESFORCE API"},{svc:"glue",x:36,y:48,role:"TRADITIONAL JOB · PAST-DAYS FETCH"},{svc:"s3",x:60,y:48,role:"APPENDED EXTRACT"},{svc:"quicksight",x:85,y:48,role:"VIEW · GAPS HIDDEN"},{svc:"cloudwatch",x:60,y:84,role:"NO GAP CHECK"}],
   edges:[[0,1],[1,2],[2,3],[2,4]],
-  steps:["<b>Salesforce changes</b> happen all day, but the job only asks for yesterday.","<b>Calendar window:</b> anything outside day-1 is never fetched.","<b>Full append:</b> the whole extract is appended again — duplicates creep in.","<b>Missed day = silent gap.</b> The fix was a full reload of everything."]},
- after:{title:"After — CRM watermark flow",sub:"Watermark catch-up, SRC → PRE → SEM. Re-runs are safe and outages heal on the next run.",
-  nodes:[{svc:"salesforce",x:10,y:48,role:"SOURCE"},{svc:"glue",x:28,y:48,role:"WATERMARK LOAD"},{svc:"s3",x:28,y:84,role:"RAW JSON"},{svc:"s3",x:50,y:48,role:"SRC · PARQUET"},{svc:"spark",x:70,y:48,role:"PRE · UPSERT + DEDUPE"},{svc:"iceberg",x:89,y:48,role:"SEM · DELETES APPLIED"},{svc:"cloudwatch",x:70,y:84,role:"ALERTS + CHECKS"}],
+  steps:["<b>1 · Traditional Glue job connects to the API:</b> on schedule, the job calls the Salesforce API directly — there is no check of what the target already has.","<b>2 · Fetches past days of data:</b> it asks for a fixed lookback, e.g. the past few calendar days. Anything older than that window, or updated outside it, is never fetched.","<b>3 · High risk of missing data — job failure:</b> if the job fails, is delayed, or is down for days, the calendar moves on. The next run fetches the new past-days window, not the failed one — that slice is silently missed.","<b>4 · High risk — API consistency &amp; other reasons:</b> late-arriving updates, timestamp skew, inconsistent or partial API responses, and pagination problems can all skip records inside the window, with no way to tell.","<b>5 · Appended, not upserted:</b> the extract is appended, so re-running to try to recover creates duplicates instead of safely filling the gap.","<b>6 · Recovery needs a full load:</b> with no watermark to resume from, the only reliable fix is a full load of the entire object, then reload downstream — slow, expensive, and manual."]},
+ after:{title:"After — Salesforce API → Glue custom downloader",sub:"Top level: one fetch — Salesforce API connected by a Glue job with custom file downloader logic. Steps 1–3 (Athena watermark → per-table query → Salesforce query) happen inside it — expand the panel below the flows to see them. Then SRC → PRE → SEM.",
+  nodes:[{svc:"salesforce",x:10,y:48,role:"SALESFORCE API"},{svc:"glue",x:28,y:48,role:"CUSTOM DOWNLOADER · 3 STEPS INSIDE ▾"},{svc:"s3",x:28,y:84,role:"RAW JSON"},{svc:"s3",x:50,y:48,role:"SRC · PARQUET"},{svc:"spark",x:70,y:48,role:"PRE · UPSERT + DEDUPE"},{svc:"iceberg",x:89,y:48,role:"SEM · DELETES APPLIED"},{svc:"cloudwatch",x:70,y:84,role:"ALERTS + CHECKS"}],
   edges:[[0,1],[1,2],[1,3],[3,4],[4,5],[4,6]],
-  steps:["<b>Read the watermark:</b> max timestamp already in the target.","<b>Pull only what changed</b> since that point — 1 hour or 5 days, it catches up.","<b>PRE upserts + dedupes</b> by Id, latest timestamp wins. Re-running is safe.","<b>SEM applies deletes</b> and promotes Iceberg → Iceberg, fast and consistent."]}
+  steps:["<b>Fetch (one top-level step, 3 sub-steps inside):</b> Glue custom downloader — ① Athena MAX(timestamp) for the watermark, ② build the per-table query from the watermark + small overlap, ③ query Salesforce for only the changes since then. Expand the panel below to see each sub-step.","<b>Land raw:</b> JSON lands in S3 exactly as the API returned it.","<b>SRC → PRE:</b> schema check, Parquet, then upsert + dedupe by Id, latest timestamp wins. Re-running is safe.","<b>SEM:</b> applies deletes and promotes Iceberg → Iceberg. Down 1 day or 10, the next run resumes from the watermark — self-healing, no full reload."]}
 },
 base:{
  before:{title:"Before — Base platform calendar flow",sub:"Every source on its own calendar schedule. One failed day broke trust in the whole lake.",
@@ -346,12 +405,17 @@ function renderBAFlow(side,flow){
    const f=BA_FLOWS[currentBA][side]; const n=f.nodes[+el.dataset.i]; const s=SERVICES[n.svc];
    nodesEl.querySelectorAll('.node').forEach(x=>x.classList.remove('active')); el.classList.add('active');
    document.getElementById('baFlowDetail').innerHTML=`<b>${isBefore?'Before':'After'} — ${s.name} (${n.role}):</b> ${s.desc} <b>In:</b> ${s.inn}. <b>Out:</b> ${s.out}. ${s.why}`;
+   // Glue fetch in After CRM flow = the expandable sub-level: clicking it opens steps 1-3
+   if(!isBefore&&currentBA==='crm'&&n.svc==='glue'){const fs=document.getElementById('fetchSteps'),ft=document.getElementById('fetchToggle');if(fs&&fs.hidden){fs.hidden=false;if(ft){ft.setAttribute('aria-expanded','true');ft.textContent='Hide the 3 fetch steps ▴'}}document.getElementById('fetchCard')?.scrollIntoView({behavior:'smooth',block:'center'})}
    // also sync main inspector for consistency
    const mainIdx=ARCH[current].nodes.findIndex(x=>x.svc===n.svc); if(mainIdx>=0) inspect(current,mainIdx);
  });
 }
 let currentBA='crm';
-function renderBA(view){currentBA=view;renderBAFlow('before',BA_FLOWS[view].before);renderBAFlow('after',BA_FLOWS[view].after)}
+function renderBA(view){currentBA=view;renderBAFlow('before',BA_FLOWS[view].before);renderBAFlow('after',BA_FLOWS[view].after);const fc=document.getElementById('fetchCard');if(fc)fc.style.display=(view==='crm')?'':'none'}
+// Fetch sub-level expand / collapse
+const fetchToggle=document.getElementById('fetchToggle'), fetchStepsEl=document.getElementById('fetchSteps');
+if(fetchToggle&&fetchStepsEl){fetchToggle.onclick=()=>{const open=fetchStepsEl.hidden;fetchStepsEl.hidden=!open;fetchToggle.setAttribute('aria-expanded',open?'true':'false');fetchToggle.textContent=open?'Hide the 3 fetch steps ▴':'Show the 3 fetch steps ▾'}}
 // Before / After tabs
 document.querySelectorAll('.baTab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.baTab').forEach(x=>x.setAttribute('aria-selected',x===b?'true':'false'));document.querySelectorAll('.baPanel').forEach(p=>p.hidden=p.id!=='ba-'+b.dataset.ba);renderBA(b.dataset.ba);document.getElementById('baFlowDetail').innerHTML='<b>Tap an icon in either flow.</b> Before nodes show where records were missed or duplicated; After nodes show where the watermark, upsert and Iceberg steps fix it.'})
 renderBA('crm')
