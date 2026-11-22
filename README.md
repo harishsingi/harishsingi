@@ -51,7 +51,10 @@ Senior Data Engineer with 7+ years building production data pipelines, lakehouse
 
 This is my base platform architecture, the standard blueprint every project starts from, covering all sources and both consumption paths, unless a pipeline needs a specific change.
 
-**Interactive version, on GitHub Pages:** [harishsingi.github.io/harishsingi](https://harishsingi.github.io/harishsingi/) — the architecture flow is shown as a window right on that page, click any service to see what it does, and send a record through the pipeline. No external site.
+**Interactive version, on GitHub Pages:** [harishsingi.github.io/harishsingi](https://harishsingi.github.io/harishsingi/) — full explorer with Before / After flows, no external site.
+
+![Pipeline at a glance](docs/architecture/pipeline-clipart.svg)
+![Streaming at a glance](docs/architecture/streaming-clipart.svg)
 
 ![Base platform architecture](docs/architecture/base-platform-architecture.svg)
 
