@@ -49,9 +49,11 @@ Senior Data Engineer with 7+ years building production data pipelines, lakehouse
 
 ## 🧭 How a pipeline I build looks
 
+This is my base platform architecture, the standard blueprint every project starts from, covering all sources and both consumption paths, unless a pipeline needs a specific change.
+
 ```mermaid
 flowchart LR
-    A[Sources<br/>APIs, files, events] --> B[Ingestion<br/>Kafka / Kinesis / Glue]
+    A[Sources<br/>APIs, files, events, CRM] --> B[Ingestion<br/>Glue / Kafka / Kinesis]
     B --> C[Bronze<br/>Raw, immutable]
     C --> D[Silver<br/>Cleaned, validated, DQ checks]
     D --> E[Gold<br/>Dimensional, SCD 1/2]
@@ -59,6 +61,20 @@ flowchart LR
     E --> G[ML features<br/>Forecasting / risk scoring]
     D -.-> H[Alerts<br/>CloudWatch, on-call]
 ```
+
+<details>
+<summary><b>🏗️ Base architecture, step by step</b></summary>
+
+<br>
+
+1. **Ingest:** Glue downloaders, Kafka, or Kinesis land data raw and immutable, per source.
+2. **Bronze:** raw JSON or files, schema checked on the way in.
+3. **Silver:** cleaned and validated, duplicates removed, quality checks before anything moves on.
+4. **Gold:** dimensionally modelled, SCD Type 1/2, governed with access controls.
+5. **Consume:** the same gold layer feeds BI dashboards and ML features, so the two never drift apart.
+6. **Operate:** daily DQ checks on the latest timestamp, alerts if no new data, on-call ownership.
+
+</details>
 
 ## 📈 Activity
 
@@ -75,6 +91,7 @@ flowchart LR
 - **Credit fraud risk:** feature store style inputs, a transparent scoring model, and a score entry point you can run on a single record.
 - **People analytics:** lifecycle data into governed layers, row and column level access controls, attrition and headcount reporting.
 - **Incentive analytics:** heavy Snowflake transformations, tiering by historic patterns, dashboard-ready gold table.
+- **Salesforce CRM ingestion:** Glue downloaders, SRC overwrites that day, PRE upserts with dedupe on record Id, SEM applies deletes via is_deleted, and a target-timestamp catch-up that self-heals after outages.
 
 </details>
 
@@ -103,6 +120,7 @@ Click a project to explore it. Every repo runs locally with synthetic data, no s
 | [credit-fraud-risk-model](https://github.com/harishsingi/credit-fraud-risk-model) | `python -m src.score` | Fraud and risk scoring for credit eligibility decisions |
 | [people-analytics-warehouse](https://github.com/harishsingi/people-analytics-warehouse) | `python -m src.build` | Governed HR warehouse: lifecycle data, SCD 1/2, attrition and headcount reporting, access controls |
 | [incentive-analytics-snowflake](https://github.com/harishsingi/incentive-analytics-snowflake) | `python -m src.build_gold` | Snowflake-style transformations for incentive dashboards, invoice and cost reporting |
+| [salesforce-crm-ingestion](https://github.com/harishsingi/salesforce-crm-ingestion) | `python -m src.src_to_pre` | Salesforce CRM ingestion: SRC/PRE/SEM, dedupe on record Id, deletes via is_deleted, self-healing incremental loads |
 
 > These repos are clean-room portfolio recreations of production work. All data is synthetic, and no proprietary code, data, schema names, or internal system details from any employer are included.
 
