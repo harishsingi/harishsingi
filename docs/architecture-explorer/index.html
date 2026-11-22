@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="color-scheme" content="light dark"/>
+<link rel="icon" href="data:,"/>
+<title>Architecture Explorer — Interactive Data Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f5f1;--surface:#fff;--ink:#101828;--muted:#5b6b82;--line:#e6e2d9;--accent:#0f766e;--accent2:#f59e0b;--stage:#0a1526;--stage2:#0f2040;--chip:#eef6f5}
+@media(prefers-color-scheme:dark){:root{--bg:#0b1220;--surface:#121e33;--ink:#eef2f7;--muted:#9fb0c3;--line:#24344f;--chip:#162a44}}
+*{box-sizing:border-box}body{margin:0;font-family:"Plus Jakarta Sans",system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+a{color:var(--accent)}button{font-family:inherit;cursor:pointer;min-height:44px}
+.top{max-width:1180px;margin:0 auto;padding:28px 18px 0}
+.eyebrow{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700}
+h1{font-size:clamp(32px,6vw,58px);line-height:.95;letter-spacing:-.03em;margin:10px 0 12px;max-width:820px}
+h1 em{font-style:normal;color:var(--accent);text-decoration:underline;text-decoration-color:var(--accent2);text-decoration-thickness:5px;text-underline-offset:6px}
+.lede{font-size:17px;line-height:1.6;color:var(--muted);max-width:720px}
+.stats{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 6px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 14px;display:flex;gap:10px;align-items:baseline}
+.stat b{font-size:20px}.stat span{font-size:12px;color:var(--muted);font-weight:600}
+/* Tabs */
+.tabs{max-width:1180px;margin:18px auto 0;padding:0 18px;display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+@media(max-width:820px){.tabs{grid-template-columns:repeat(2,1fr)}.tabs button:last-child{grid-column:span 2}}
+.tab{border:1px solid var(--line);background:var(--surface);border-radius:16px;padding:14px;text-align:left}
+.tab strong{display:block;font-size:15px}.tab small{color:var(--muted);line-height:1.4;display:block;margin-top:4px}
+.tab[aria-selected="true"]{border-color:var(--accent);background:var(--chip);box-shadow:0 0 0 2px var(--accent) inset}
+.tab .num{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--accent);font-weight:700}
+/* Stage */
+.wrap{max-width:1180px;margin:14px auto;padding:0 18px 28px}
+.stageCard{background:var(--stage);border-radius:24px;overflow:hidden;box-shadow:0 20px 50px rgba(10,21,38,.25)}
+.stageHead{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;padding:16px 18px;background:linear-gradient(90deg,var(--stage2),var(--stage));color:#fff;border-bottom:1px solid rgba(255,255,255,.12)}
+.stageHead h2{margin:0;font-size:20px}.stageHead p{margin:3px 0 0;color:#b9c7dd;font-size:13px;max-width:560px;line-height:1.5}
+.controls{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border-radius:999px;border:1px solid rgba(255,255,255,.25);background:#fff;color:#0a1526;padding:10px 16px;font-weight:800}
+.btn.ghost{background:transparent;color:#fff}
+.btn.amber{background:var(--accent2);border-color:var(--accent2)}
+.diagram{position:relative;height:560px;background:radial-gradient(circle at 20% 20%,rgba(45,212,191,.14),transparent 40%),radial-gradient(circle at 85% 15%,rgba(245,158,11,.12),transparent 35%),linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);background-size:auto,auto,28px 28px,28px 28px}
+@media(max-width:700px){.diagram{height:620px}}
+#edges{position:absolute;inset:0;width:100%;height:100%}
+.edge{fill:none;stroke:#5eead4;stroke-width:2.2;opacity:.55;stroke-dasharray:7 7;animation:dash 1.2s linear infinite}
+.edge.dim{opacity:.18}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.paused .edge{animation-play-state:paused}
+.node{position:absolute;transform:translate(-50%,-50%);width:104px;background:transparent;border:0;color:#fff;text-align:center;padding:6px 4px;border-radius:16px}
+.node:focus-visible{outline:3px solid #fbbf24;outline-offset:2px}
+.iconBox{width:62px;height:62px;margin:0 auto;border-radius:14px;display:grid;place-items:center;background:#fff;box-shadow:0 8px 20px rgba(0,0,0,.35);border:3px solid transparent;transition:.2s;overflow:hidden}
+.iconBox svg{width:62px!important;height:62px!important}
+.node:hover .iconBox,.node.active .iconBox{transform:translateY(-3px) scale(1.05);border-color:#fbbf24}
+.node.done .iconBox{border-color:#34d399}
+.iconBox svg{width:40px;height:40px}
+.nodeName{font-weight:800;font-size:12.5px;line-height:1.2;margin-top:7px;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+.nodeRole{font-size:10.5px;color:#cbd5e1;font-family:"JetBrains Mono",monospace;margin-top:2px}
+.zone{position:absolute;border:1px dashed rgba(255,255,255,.22);border-radius:18px;padding:8px 10px;color:rgba(255,255,255,.65);font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;pointer-events:none}
+/* Below stage */
+.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:14px;margin-top:14px}
+@media(max-width:820px){.grid{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:20px}
+.card h3{margin:0 0 8px;font-size:18px}.card p,.card li{color:var(--muted);line-height:1.65;font-size:14.5px}
+.inspectorIcon{width:64px;height:64px;border-radius:16px;background:#f1f5f9;display:grid;place-items:center;border:1px solid var(--line)}
+.inspectorIcon svg{width:44px;height:44px}
+.flex{display:flex;gap:14px;align-items:center}
+.tag{display:inline-block;background:var(--chip);color:var(--accent);font-weight:800;font-size:11px;padding:5px 8px;border-radius:999px;margin:4px 4px 0 0}
+.log{font-family:"JetBrains Mono",monospace;font-size:12.5px;line-height:1.7;max-height:240px;overflow:auto;background:#0a1526;color:#a7f3d0;border-radius:14px;padding:14px}
+.log div{border-bottom:1px solid rgba(255,255,255,.08);padding:4px 0}
+.progress{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin:12px 0}.progress i{display:block;height:100%;background:var(--accent);width:0;transition:.4s}
+/* Library */
+.lib{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:12px}
+.libItem{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;text-align:center;cursor:pointer;min-height:110px}
+.libItem:hover{border-color:var(--accent)}
+.libItem .iconBox{box-shadow:none;border:1px solid var(--line);background:#fff}
+.libItem strong{display:block;margin-top:8px;font-size:13px}.libItem span{font-size:11px;color:var(--muted)}
+.note{font-size:12px;color:var(--muted);margin-top:10px;line-height:1.6}
+@media(prefers-reduced-motion:reduce){.edge{animation:none}.iconBox{transition:none}}
+</style>
+</head>
+<body>
+<header class="top">
+<div class="eyebrow">Interactive • Clickable • Animated</div>
+<h1>Don't just look at the architecture. <em>Walk a record through it.</em></h1>
+<p class="lede">Five original, living diagrams for one data platform — base platform, Salesforce CRM ingestion, Kafka streaming, Iceberg lakehouse, and ML forecasting. Every service is its own icon. Click any icon to inspect it, or press <b>Send a record</b> and watch it travel.</p>
+<div class="stats"><div class="stat"><b>5</b><span>architectures</span></div><div class="stat"><b>21</b><span>service icons</span></div><div class="stat"><b>3</b><span>layers in CRM: SRC → PRE → SEM</span></div><div class="stat"><b>1</b><span>record journey per diagram</span></div></div>
+</header>
+
+<nav class="tabs" id="tabs" aria-label="Architectures"></nav>
+
+<main class="wrap">
+<section class="stageCard">
+<div class="stageHead"><div><h2 id="stageTitle"></h2><p id="stageDesc"></p></div><div class="controls"><button class="btn amber" id="runBtn">▶ Send a record through</button><button class="btn ghost" id="pauseBtn">Pause flow</button></div></div>
+<div class="diagram" id="diagram"><svg id="edges" viewBox="0 0 1000 560" preserveAspectRatio="none" aria-hidden="true"></svg><div id="zones"></div><div id="nodes"></div></div>
+</section>
+
+<div class="grid">
+<article class="card">
+<div class="flex"><div class="inspectorIcon" id="inspIcon"></div><div><h3 id="inspName" style="margin:0">Pick a service</h3><div id="inspTags"></div></div></div>
+<p id="inspDesc">Tap any icon in the diagram above. You'll get what it does in this design, what goes in, and what comes out — in plain language, not a box label.</p>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div><strong style="font-size:12px;letter-spacing:.08em">IN</strong><p id="inspIn">—</p></div><div><strong style="font-size:12px;letter-spacing:.08em">OUT</strong><p id="inspOut">—</p></div></div>
+<p class="note" id="inspWhy"></p>
+</article>
+
+<article class="card"><h3>Journey log</h3><div class="progress"><i id="bar"></i></div><div class="log" id="log"><div>Ready. Choose an architecture, then send a record through it.</div></div><p class="note">Tip: each architecture tells a different story. The CRM one self-heals after an outage. Kafka never waits for a batch. Iceberg lets you time-travel. ML closes the loop back to planning.</p></article>
+</div>
+
+<section class="card" style="margin-top:14px"><h3>Service library — tap one to see where it shows up</h3><p>Official-style architecture icons in each service's own colours — green S3 bucket, orange Lambda, purple Athena, blue Salesforce cloud, black Kafka, Iceberg, Airflow pinwheel and more — with the service name under every icon, exactly as in a real architecture diagram.</p><div class="lib" id="lib"></div><p class="note" id="libNote">Select a service above to highlight it across the diagrams.</p></section>
+
+<section class="card" style="margin-top:14px"><h3>How to read the five patterns</h3><ul>
+<li><b>Base platform:</b> the blueprint every project inherits — land raw, validate, model, then serve.</li>
+<li><b>CRM ingestion:</b> Salesforce is just the example source. The SRC → PRE → SEM pattern works for any CRM.</li>
+<li><b>Kafka streaming:</b> a different shape entirely — events flow continuously, no daily batch to wait for.</li>
+<li><b>Iceberg migration:</b> Hive tables become Iceberg tables on the same S3 data, gaining snapshots and time travel.</li>
+<li><b>ML forecasting:</b> Gold data becomes features, features become a forecast, the forecast goes back to the business.</li></ul></section>
+</main>
+
+<script>
+// ---------- ICONS: original SVG figures inspired by each service's real logo colours/shapes ----------
+function svg(inner){return `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">${inner}</svg>`}
+const ICONS={
+salesforce: svg(`<rect width="48" height="48" rx="10" fill="#00A1E0"/><path d="M13 31a7 7 0 1 1 1.5-13.8A10 10 0 0 1 34 19a6.5 6.5 0 0 1-2 12H13z" fill="white"/><text x="24" y="29" text-anchor="middle" font-size="6.5" font-weight="700" fill="#00A1E0" font-family="Arial" font-style="italic">salesforce</text>`),
+api: svg(`<rect width="48" height="48" rx="10" fill="#ED7100"/><text x="24" y="22" text-anchor="middle" font-size="9" font-weight="800" fill="white" font-family="Arial">API</text><path d="M12 30h24M12 35h16" stroke="white" stroke-width="2.5" stroke-linecap="round"/>`),
+files: svg(`<rect width="48" height="48" rx="10" fill="#7AA116"/><path d="M15 8h13l7 7v25H15z" fill="white"/><path d="M28 8v7h7" fill="#D9E8A8"/><path d="M19 22h12M19 27h12M19 32h8" stroke="#7AA116" stroke-width="2" stroke-linecap="round"/>`),
+database: svg(`<rect width="48" height="48" rx="10" fill="#2E27AD"/><ellipse cx="24" cy="14" rx="11" ry="4.5" fill="white"/><path d="M13 14v18c0 2.5 5 4.5 11 4.5s11-2 11-4.5V14" fill="white" opacity=".92"/><path d="M13 23c0 2.5 5 4.5 11 4.5s11-2 11-4.5" stroke="#2E27AD" stroke-width="1.8" fill="none"/>`),
+s3: svg(`<rect width="48" height="48" rx="10" fill="#3F8624"/><path d="M14 13h20l-2.2 22a3 3 0 0 1-3 2.6H19.2a3 3 0 0 1-3-2.6L14 13z" fill="white"/><ellipse cx="24" cy="13" rx="10" ry="3.6" fill="#BFE8A8"/><path d="M18.5 21c1.6 1.4 9.4 1.4 11 0M18.8 27c1.6 1.4 8.8 1.4 10.4 0" stroke="#3F8624" stroke-width="1.9" stroke-linecap="round"/>`),
+glue: svg(`<rect width="48" height="48" rx="10" fill="#2E27AD"/><circle cx="24" cy="24" r="11" fill="none" stroke="white" stroke-width="3"/><path d="M24 13v22M13 24h22M16 16l16 16M32 16L16 32" stroke="white" stroke-width="1.6" opacity=".85"/><circle cx="24" cy="24" r="3.5" fill="white"/>`),
+lambda: svg(`<rect width="48" height="48" rx="10" fill="#ED7100"/><path d="M17 36l6.5-20 3.2 6.5L33 36h-4.6l-3.9-8-3 8H17z" fill="white"/>`),
+airflow: svg(`<rect width="48" height="48" rx="10" fill="#017CEE"/><path d="M24 24L24 7a17 17 0 0 1 15 9L24 24zM24 24l15 9a17 17 0 0 1-15 8V24zM24 24L9 33a17 17 0 0 1 0-18l15 9z" fill="white"/><circle cx="24" cy="24" r="4" fill="#017CEE" stroke="white" stroke-width="1.5"/>`),
+spark: svg(`<rect width="48" height="48" rx="10" fill="#E25A1C"/><path d="M24 5l3.5 10.5L38 11l-7 9 9 5.5-11.5 2L31 39l-7-8-7 8 2.5-11.5L8 25.5l9-5.5-7-9 10.5 4.5z" fill="white"/>`),
+step: svg(`<rect width="48" height="48" rx="10" fill="#B81FB8"/><rect x="11" y="11" width="11" height="11" rx="2" fill="white"/><rect x="26" y="26" width="11" height="11" rx="2" fill="white" opacity=".85"/><path d="M22 16h7a3 3 0 0 1 3 3v7" stroke="white" stroke-width="2.2" fill="none"/>`),
+iceberg: svg(`<rect width="48" height="48" rx="10" fill="#DFF3FF"/><path d="M7 26L19 7l7 11 4-5 11 13H7z" fill="#38BDF8"/><path d="M11 26l5 15h17l5-15H11z" fill="#0284C7"/><path d="M5 26h38" stroke="#075985" stroke-width="2.5" stroke-linecap="round"/>`),
+athena: svg(`<rect width="48" height="48" rx="10" fill="#8C4FFF"/><rect x="10" y="10" width="24" height="20" rx="2" fill="white"/><path d="M14 16h16M14 21h16M14 26h10" stroke="#8C4FFF" stroke-width="2"/><circle cx="31" cy="31" r="7" fill="#FFD43B" stroke="white" stroke-width="2"/><path d="M36 36l5 5" stroke="white" stroke-width="3" stroke-linecap="round"/>`),
+cloudwatch: svg(`<rect width="48" height="48" rx="10" fill="#ED7100"/><path d="M9 32l7-13 6 8 5-11 6 16" stroke="white" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="38" cy="13" r="3" fill="white"/>`),
+quicksight: svg(`<rect width="48" height="48" rx="10" fill="#4D27AA"/><path d="M13 34V21M21 34V13M29 34V25" stroke="white" stroke-width="4.5" stroke-linecap="round"/><circle cx="34" cy="34" r="6" fill="none" stroke="#FF6B9D" stroke-width="3"/><path d="M38.5 38.5L43 43" stroke="#FF6B9D" stroke-width="3" stroke-linecap="round"/>`),
+kafka: svg(`<rect width="48" height="48" rx="10" fill="#000000"/><circle cx="13" cy="13" r="4" fill="white"/><circle cx="35" cy="13" r="4" fill="white"/><circle cx="24" cy="36" r="4" fill="white"/><path d="M15.5 16.5l6 15M32.5 16.5l-6 15M17 13h14" stroke="white" stroke-width="2.4"/>`),
+kinesis: svg(`<rect width="48" height="48" rx="10" fill="#8C4FFF"/><path d="M8 17c5-6 9 5 14 0s8-5 12 0M8 26c5-6 9 5 14 0s8-5 12 0M8 35c5-6 9 5 14 0s8-5 12 0" stroke="white" stroke-width="3" fill="none" stroke-linecap="round" transform="scale(.92) translate(2,0)"/>`),
+sagemaker: svg(`<rect width="48" height="48" rx="10" fill="#067F6B"/><circle cx="24" cy="19" r="6" fill="white"/><path d="M11 37c2.5-6.5 7-9 13-9s10.5 2.5 13 9" fill="white"/><path d="M37 8l1.2 2.8L41 12l-2.8 1.2L37 16l-1.2-2.8L33 12l2.8-1.2z" fill="#FDE68A"/>`),
+dbt: svg(`<rect width="48" height="48" rx="10" fill="#FF694B"/><path d="M15 14l9 18 9-18M24 10v7" stroke="white" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>`),
+snowflake: svg(`<rect width="48" height="48" rx="10" fill="#29B5E8"/><path d="M24 7v34M9.5 15.5l29 17M38.5 15.5l-29 17M24 13l-4.5-4.5M24 13l4.5-4.5M24 35l-4.5 4.5M24 35l4.5 4.5" stroke="white" stroke-width="2.6" stroke-linecap="round"/>`),
+catalog: svg(`<rect width="48" height="48" rx="10" fill="#2E27AD"/><rect x="11" y="10" width="26" height="28" rx="3" fill="white"/><path d="M16 17h16M16 23h16M16 29h11" stroke="#2E27AD" stroke-width="2.4" stroke-linecap="round"/>`),
+hive: svg(`<rect width="48" height="48" rx="10" fill="#FDEE21"/><path d="M24 7l15 8.5v17L24 41l-15-8.5v-17z" fill="none" stroke="#111" stroke-width="2"/><path d="M16 20h16M16 26h16M16 32h10" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>`),
+}
+const SERVICES={
+salesforce:{name:"Salesforce",tags:["Source","CRM"],desc:"Cloud CRM where accounts, opportunities and cases live. In this design it's the example source — the pattern doesn't depend on it.",inn:"User activity, record creates & updates",out:"Changed records via API / bulk export",why:"Why it matters: CRM data changes constantly, so the pipeline tracks timestamps, not calendar days."},
+api:{name:"APIs & Apps",tags:["Source"],desc:"Product and web-app events arriving over REST — clicks, conversions, and journey steps.",inn:"HTTP events, JSON payloads",out:"Raw JSON events",why:"Kept raw first, so a bad deploy never loses the original event."},
+files:{name:"Files & Feeds",tags:["Source"],desc:"Partner feeds, CSV drops, and scheduled file deliveries landing on a schedule.",inn:"CSV, JSON, Parquet files",out:"Landed files, untouched",why:"Files are versioned by arrival date so re-deliveries don't overwrite history."},
+database:{name:"Operational DBs",tags:["Source"],desc:"Transactional databases behind internal systems — orders, invoices, dealer and service data.",inn:"Tables, change logs",out:"Incremental extracts",why:"Extracts are incremental wherever a reliable updated-at exists."},
+s3:{name:"Amazon S3",tags:["Storage","Lake"],desc:"The lake itself. Raw, curated and gold data all live here in open formats, cheaply and durably.",inn:"Raw files & table data",out:"Versioned objects, Iceberg tables",why:"Separating storage from compute is what makes the whole platform cheap to scale."},
+glue:{name:"AWS Glue",tags:["ETL","Transform"],desc:"Serverless Spark ETL. The downloaders and transformers — landing JSON, writing Parquet, running the SRC / PRE / SEM jobs.",inn:"Raw JSON, Parquet",out:"Cleaned, deduped Parquet tables",why:"Glue jobs are idempotent: re-running a day rebuilds that day, it doesn't duplicate it."},
+lambda:{name:"AWS Lambda",tags:["Compute","Trigger"],desc:"Small, event-driven functions — file-arrival triggers, lightweight checks, and glue between services.",inn:"S3 / event notifications",out:"Job triggers, alerts",why:"No servers to babysit for work that only runs for seconds at a time."},
+airflow:{name:"Apache Airflow",tags:["Orchestration"],desc:"The conductor. DAGs schedule every job, manage dependencies, retry failures, and make backfills boring.",inn:"Schedules, sensors",out:"Ordered, retried job runs",why:"If Airflow is green, the platform is green — it's the single place to check."},
+spark:{name:"Apache Spark / PySpark",tags:["Transform"],desc:"Distributed transforms for the heavy lifting — joins, dedupe, aggregations at petabyte-adjacent scale.",inn:"Parquet, Iceberg tables",out:"Modelled, partitioned tables",why:"Dedupe rule used everywhere: group by record Id, keep the row with the latest timestamp."},
+step:{name:"Step Functions",tags:["Orchestration"],desc:"State machines for multi-step, branching workflows where a visual state trail helps.",inn:"Events, job states",out:"Sequenced workflow runs",why:"Useful where a workflow needs explicit wait, retry and catch branches."},
+iceberg:{name:"Apache Iceberg",tags:["Table format"],desc:"Table format on top of S3. Snapshots, schema evolution, partition evolution, and time travel — without copying data.",inn:"Parquet files on S3",out:"ACID tables with snapshots",why:"A bad load isn't a disaster: roll back to the previous snapshot in one command."},
+athena:{name:"Amazon Athena",tags:["Query","Semantic"],desc:"Serverless SQL straight on the lake. Powers ad-hoc analysis and the semantic / serving layer for many consumers.",inn:"SQL over Iceberg / Parquet",out:"Query results, views",why:"No warehouse to load first — analysts query the lake where it already sits."},
+cloudwatch:{name:"CloudWatch",tags:["Observability"],desc:"Logs, metrics and alarms for every job. Failed runs page out instead of being discovered by a stakeholder.",inn:"Job logs & metrics",out:"Alarms, dashboards",why:"Paired with data-quality checks: a green job with wrong data still raises an alarm."},
+quicksight:{name:"QuickSight",tags:["BI","Consumer"],desc:"Dashboards for the business — conversion journeys, dealer and wholesale reporting, executive views.",inn:"Gold / semantic tables",out:"Dashboards people actually open",why:"BI reads the semantic layer, never raw — so every dashboard agrees on definitions."},
+kafka:{name:"Apache Kafka",tags:["Streaming"],desc:"Durable event streaming. Producers publish once; many consumers read at their own pace, and can replay.",inn:"Real-time events",out:"Ordered topic streams",why:"Replay is the superpower: a new consumer can rebuild its state from day one."},
+kinesis:{name:"Amazon Kinesis",tags:["Streaming"],desc:"Managed streaming ingestion on AWS — the hosted alternative when you don't want to run Kafka yourself.",inn:"Real-time events",out:"Shards for stream processing",why:"Trades some Kafka flexibility for zero cluster operations."},
+sagemaker:{name:"SageMaker / ML",tags:["ML","Consumer"],desc:"Training and inference for forecasting models — features in, predictions out, monitored for drift.",inn:"Feature tables (Gold)",out:"Forecasts, scores",why:"Predictions are written back to the lake, so BI and ML finally show the same numbers."},
+dbt:{name:"dbt",tags:["Transform","Semantic"],desc:"SQL modelling with tests, docs and lineage. Where business definitions live as code.",inn:"Silver tables, SQL models",out:"Tested Gold models",why:"Every Gold model ships with tests — a failing test stops promotion, not a meeting."},
+snowflake:{name:"Snowflake",tags:["Warehouse"],desc:"Warehouse option for heavy transformation and dashboard workloads that prefer warehouse compute.",inn:"Modelled tables",out:"Dashboard-ready datasets",why:"Used selectively, for the workloads it genuinely serves best."},
+catalog:{name:"Glue Data Catalog",tags:["Governance"],desc:"The shared table registry — schemas, partitions and lineage metadata every engine reads from.",inn:"Table schemas",out:"One source of schema truth",why:"Athena, Spark and Glue all reading one catalog is what stops schema drift."},
+hive:{name:"Hive Metastore Tables",tags:["Legacy"],desc:"The legacy table layout being migrated — same S3 data, older format, no snapshots or safe evolution.",inn:"Existing S3 data",out:"Tables ready to convert in place",why:"Migration converts metadata in place. The expensive data copy everyone fears isn't needed."},
+}
+const ARCH=[
+{id:"base",num:"01",title:"Base Platform",short:"The blueprint for every project",desc:"Sources on the left, value on the right. Everything lands raw, passes a quality gate, gets modelled in layers, then serves everyone from one semantic layer.",zones:[{t:"Sources",x:2,y:6,w:18},{t:"Lakehouse",x:38,y:6,w:30},{t:"Serve",x:74,y:6,w:22}],nodes:[
+{svc:"salesforce",x:11,y:26,role:"CRM"},{svc:"api",x:11,y:52,role:"EVENTS"},{svc:"database",x:11,y:78,role:"SYSTEMS"},
+{svc:"lambda",x:28,y:52,role:"INGEST GATE"},{svc:"s3",x:46,y:26,role:"BRONZE · RAW"},{svc:"glue",x:46,y:58,role:"SILVER · CLEAN"},{svc:"iceberg",x:62,y:42,role:"GOLD · ICEBERG"},
+{svc:"airflow",x:62,y:78,role:"ORCHESTRATES"},{svc:"athena",x:82,y:26,role:"SEMANTIC"},{svc:"quicksight",x:82,y:54,role:"BI"},{svc:"sagemaker",x:82,y:80,role:"ML"}],
+edges:[[0,3],[1,3],[2,3],[3,4],[4,5],[5,6],[6,8],[6,9],[6,10],[7,5]],journey:[0,3,4,5,6,9],insight:"One blueprint, many projects: swap the source, keep the gate, layers and semantic serving exactly the same."},
+{id:"crm",num:"02",title:"CRM Ingestion — Salesforce",short:"SRC → PRE → SEM, self-healing",desc:"A daily pattern that heals itself. SRC lands Parquet with a schema check, PRE upserts and dedupes, SEM applies deletes. Catch-up is driven by the target's max timestamp — not 'yesterday'.",zones:[{t:"Land",x:22,y:6,w:20},{t:"Prepare",x:46,y:6,w:20},{t:"Serve",x:70,y:6,w:24}],nodes:[
+{svc:"salesforce",x:11,y:50,role:"SOURCE"},{svc:"glue",x:32,y:50,role:"DOWNLOADER"},{svc:"s3",x:32,y:80,role:"RAW JSON"},
+{svc:"catalog",x:54,y:22,role:"SCHEMA CHECK"},{svc:"s3",x:54,y:50,role:"SRC · PARQUET"},{svc:"spark",x:72,y:50,role:"PRE · UPSERT"},{svc:"iceberg",x:88,y:50,role:"SEM · DELETES APPLIED"},{svc:"cloudwatch",x:72,y:82,role:"ALERTS"}],
+edges:[[0,1],[1,2],[1,4],[4,3],[4,5],[5,6],[5,7]],journey:[0,1,4,5,6],insight:"102 synthetic records in, 100 unique out in testing: dedupe keeps the latest timestamp per record Id, and is_deleted in SEM removes what the source deleted."},
+{id:"kafka",num:"03",title:"Kafka Streaming",short:"No batch. Events, continuously.",desc:"A completely different shape: producers publish events once, Kafka holds them durably, and stream processors and consumers each move at their own speed — with replay when they need to catch up.",zones:[{t:"Producers",x:2,y:6,w:18},{t:"Stream",x:36,y:6,w:30},{t:"Consumers",x:72,y:6,w:24}],nodes:[
+{svc:"api",x:11,y:28,role:"APP EVENTS"},{svc:"database",x:11,y:68,role:"CDC CHANGES"},
+{svc:"kafka",x:50,y:48,role:"TOPICS · PARTITIONS"},{svc:"spark",x:50,y:82,role:"STREAM PROCESSING"},
+{svc:"s3",x:82,y:24,role:"LAKE SINK"},{svc:"sagemaker",x:82,y:54,role:"REAL-TIME ML"},{svc:"quicksight",x:82,y:82,role:"LIVE VIEWS"}],
+edges:[[0,2],[1,2],[2,3],[2,4],[2,5],[3,6]],journey:[0,2,3,4],insight:"Batch asks 'what happened yesterday?' Streaming asks 'what is happening now?' — and Kafka keeps the history so you can ask both."},
+{id:"iceberg",num:"04",title:"Iceberg Lakehouse Migration",short:"Hive → Iceberg, in place",desc:"The data doesn't move — the table format does. Hive tables on S3 are converted in place to Iceberg, unlocking snapshots, safe schema changes, and rollback, engine by engine.",zones:[{t:"Before",x:2,y:6,w:22},{t:"Convert",x:38,y:6,w:26},{t:"After",x:72,y:6,w:24}],nodes:[
+{svc:"hive",x:13,y:34,role:"HIVE TABLES"},{svc:"s3",x:13,y:72,role:"SAME S3 DATA"},
+{svc:"glue",x:50,y:34,role:"MIGRATION JOB"},{svc:"catalog",x:50,y:72,role:"CATALOG UPDATE"},
+{svc:"iceberg",x:84,y:34,role:"ICEBERG TABLES"},{svc:"athena",x:84,y:68,role:"TIME TRAVEL SQL"},{svc:"spark",x:50,y:52,role:"VALIDATION"}],
+edges:[[0,2],[1,2],[2,6],[6,3],[2,4],[4,5]],journey:[0,2,6,4,5],insight:"Validation compares row counts and checksums snapshot-to-table before cutover — if they don't match, nothing switches."},
+{id:"ml",num:"05",title:"ML Demand Forecasting",short:"Gold data → forecast → decision",desc:"A loop, not a line. Gold tables become features, a model learns demand patterns, forecasts are written back to the lake, and planners see predictions next to actuals.",zones:[{t:"Features",x:2,y:6,w:24},{t:"Model",x:40,y:6,w:24},{t:"Decisions",x:72,y:6,w:24}],nodes:[
+{svc:"iceberg",x:14,y:48,role:"GOLD HISTORY"},{svc:"dbt",x:34,y:24,role:"FEATURE MODELS"},{svc:"spark",x:34,y:74,role:"FEATURE BUILD"},
+{svc:"sagemaker",x:52,y:48,role:"TRAIN + PREDICT"},{svc:"cloudwatch",x:52,y:82,role:"DRIFT MONITOR"},
+{svc:"s3",x:82,y:30,role:"FORECASTS BACK TO LAKE"},{svc:"quicksight",x:82,y:68,role:"PLANNER VIEW"}],
+edges:[[0,1],[0,2],[1,3],[2,3],[3,4],[3,5],[5,6]],journey:[0,2,3,5,6],insight:"The forecast is data, not a slide: it lands back in Gold, versioned, so accuracy can be measured against actuals every week."},
+]
+let current=0, paused=false, running=false
+const tabs=document.getElementById('tabs'), nodesEl=document.getElementById('nodes'), edgesEl=document.getElementById('edges'), zonesEl=document.getElementById('zones')
+function renderTabs(){tabs.innerHTML=ARCH.map((a,i)=>`<button class="tab" data-i="${i}" aria-selected="${i===current}"><span class="num">${a.num}</span><strong>${a.title}</strong><small>${a.short}</small></button>`).join(''); tabs.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{current=+b.dataset.i; render()})}
+function render(){
+ renderTabs(); const a=ARCH[current]
+ document.getElementById('stageTitle').textContent=a.title; document.getElementById('stageDesc').textContent=a.desc
+ zonesEl.innerHTML=a.zones.map(z=>`<div class="zone" style="left:${z.x}%;top:${z.y}%">${z.t}</div>`).join('')
+ nodesEl.innerHTML=a.nodes.map((n,i)=>{const s=SERVICES[n.svc];return `<button class="node" data-i="${i}" style="left:${n.x}%;top:${n.y}%" aria-label="${s.name}"><span class="iconBox">${ICONS[n.svc]}</span><span class="nodeName">${s.name}</span><span class="nodeRole" style="display:block">${n.role}</span></button>`}).join('')
+ nodesEl.querySelectorAll('.node').forEach(el=>el.onclick=()=>inspect(current, +el.dataset.i, el))
+ // edges
+ const NS='http://www.w3.org/2000/svg'; edgesEl.innerHTML=''
+ a.edges.forEach(([f,t])=>{const A=a.nodes[f],B=a.nodes[t];const x1=A.x*10,y1=A.y*5.6,x2=B.x*10,y2=B.y*5.6;const mx=(x1+x2)/2;const p=document.createElementNS(NS,'path');p.setAttribute('d',`M ${x1} ${y1} C ${mx} ${y1}, ${mx} ${y2}, ${x2} ${y2}`);p.setAttribute('class','edge');edgesEl.appendChild(p);
+ // moving packet
+ const c=document.createElementNS(NS,'circle');c.setAttribute('r','6');c.setAttribute('fill','#fbbf24');c.setAttribute('stroke','white');c.setAttribute('stroke-width','2');const am=document.createElementNS(NS,'animateMotion');am.setAttribute('dur',(2.5+Math.random()*2)+'s');am.setAttribute('repeatCount','indefinite');am.setAttribute('path',p.getAttribute('d'));c.appendChild(am);edgesEl.appendChild(c)})
+ document.getElementById('log').innerHTML=`<div><b>${a.title}</b> — ${a.insight}</div><div>Ready. Press “Send a record through”.</div>`
+ document.getElementById('bar').style.width='0%'; inspect(current, a.journey[0])
+}
+function inspect(archIdx, nodeIdx, el){
+ const a=ARCH[archIdx], n=a.nodes[nodeIdx], s=SERVICES[n.svc]
+ document.querySelectorAll('.node').forEach(x=>x.classList.remove('active')); const target=document.querySelector(`.node[data-i="${nodeIdx}"]`); if(target) target.classList.add('active')
+ document.getElementById('inspIcon').innerHTML=ICONS[n.svc]; document.getElementById('inspName').textContent=s.name+' — '+n.role.toLowerCase()
+ document.getElementById('inspTags').innerHTML=s.tags.map(t=>`<span class="tag">${t}</span>`).join('')
+ document.getElementById('inspDesc').textContent=s.desc; document.getElementById('inspIn').textContent=s.inn; document.getElementById('inspOut').textContent=s.out; document.getElementById('inspWhy').textContent=s.why
+}
+document.getElementById('pauseBtn').onclick=e=>{paused=!paused;document.getElementById('diagram').classList.toggle('paused',paused);e.target.textContent=paused?'Resume flow':'Pause flow'}
+document.getElementById('runBtn').onclick=async()=>{
+ if(running) return; running=true; const a=ARCH[current]; const log=document.getElementById('log'); log.innerHTML=''
+ for(let k=0;k<a.journey.length;k++){const idx=a.journey[k];const n=a.nodes[idx];const s=SERVICES[n.svc];inspect(current,idx);document.querySelectorAll('.node')[idx]?.classList.add('done');log.innerHTML+=`<div>→ Step ${k+1}/${a.journey.length}: <b>${s.name}</b> (${n.role}) — ${s.out}</div>`;log.scrollTop=log.scrollHeight;document.getElementById('bar').style.width=((k+1)/a.journey.length*100)+'%';await new Promise(r=>setTimeout(r, paused?400:950))}
+ log.innerHTML+=`<div>✓ Journey complete. ${a.insight}</div>`; running=false
+}
+// Library
+const lib=document.getElementById('lib'); lib.innerHTML=Object.keys(SERVICES).map(k=>`<button class="libItem" data-k="${k}"><span class="iconBox">${ICONS[k]||ICONS.s3}</span><strong>${SERVICES[k].name}</strong><span>${SERVICES[k].tags.join(' · ')}</span></button>`).join('')
+lib.querySelectorAll('.libItem').forEach(b=>b.onclick=()=>{const k=b.dataset.k;const uses=ARCH.map((a,i)=>a.nodes.some(n=>n.svc===k)?a.title:null).filter(Boolean);document.getElementById('libNote').textContent= uses.length? `${SERVICES[k].name} appears in: ${uses.join(', ')}. ${SERVICES[k].desc}` : SERVICES[k].name+': '+SERVICES[k].desc; const idx=ARCH[current].nodes.findIndex(n=>n.svc===k); if(idx>=0) inspect(current,idx); window.scrollTo({top:0,behavior:'smooth'})})
+render()
+</script>
+</body>
+</html>
