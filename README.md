@@ -18,10 +18,10 @@ I build pipelines that business teams can trust: governed, dimensionally modelle
 |---|---|
 | aws-data-pipeline-starter-kit | Production-grade AWS pipeline: Glue, EMR, Lambda, S3, Athena, Terraform, Docker, data quality |
 | hive-to-iceberg-lakehouse | Hive to Apache Iceberg migration, snapshot time travel, Spark, Airflow orchestration |
-| parts-service-demand-forecasting | ML product for internal teams to predict parts and service demand, improving accuracy and cutting costs |
-| lease-finance-fraud-risk | Fraud prediction models supporting lease and finance eligibility decisions |
+| demand-forecasting-ml | ML product for internal teams to predict parts and service demand, improving accuracy and cutting costs |
+| credit-fraud-risk-model | Fraud prediction models supporting lease and finance eligibility decisions |
 | people-analytics-warehouse | Governed HR warehouse: employee lifecycle, SCD 1/2, attrition and headcount reporting, access controls |
-| dealer-bonus-snowflake-analytics | Heavy Snowflake transformations for dealer bonus dashboards, invoice, cost and dealer reporting |
+| incentive-analytics-snowflake | Heavy Snowflake transformations for dealer bonus dashboards, invoice, cost and dealer reporting |
 
 > Note on these repos: Portfolio implementation based on production work experience. All data is synthetic, all code is original and clean-room, and no proprietary code, data, schema names, or internal system details from any employer are included.
 
